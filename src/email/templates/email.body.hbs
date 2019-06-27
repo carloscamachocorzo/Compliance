@@ -1,0 +1,49 @@
+{{!-- <h4>Main Body Here</h4>
+{{variable1}} <br />
+{{variable2}} --}}
+<tr>
+    {{!-- toca dejarlo colspan 2 porque en el footer tiene un tr con dos td --}}
+    <td colspan="2">
+        <p>
+            Se realizó la consulta de la persona <strong>{{{cliente.nombre}}}</strong> con tipo de docuento <strong>{{{cliente.tipoDocumento}}}</strong> y número de identificación
+            <strong>{{{cliente.identificacion}}}</strong>, el cual fue positivo al verificarlo en la(s) lista(s)
+        </p>
+
+        <table style="margin-left: auto; margin-right: auto;" border="1" width="100%">
+            <thead>
+                <tr>
+                    <td style="width: 5%; text-align: center;"><strong>#</strong></td>
+                    <td style="width: 5%; text-align: center;"><strong>Riesgo</strong></td>
+                    <td style="width: 20%; text-align: center;"><strong>Lista</strong></td>
+                    <td style="width: 70%; text-align: center;"><strong>Descripción</strong></td>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each emailDescription}}
+                <tr>
+                    <td style="text-align: center;">{{incremento @index}}</td>
+                    <td style="text-align: center;">
+                        {{#formatearTextoRiesgo this.riesgo this.riesgo}}
+                        el texto se genera en el helper
+                        {{/formatearTextoRiesgo}}
+                    </td>
+                    <td>
+                        {{#formatearTextoRiesgo this.riesgo this.lista}}
+                        el texto se genera en el helper
+                        {{/formatearTextoRiesgo}}
+                    </td>
+                    <td>
+                        {{#procesarTextoDescripcion this.descripcion}}
+                        el texto se genera en el helper
+                        {{/procesarTextoDescripcion}}
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <p></p>
+
+        <p>La consulta se efectuó por parte de la aplicación <strong>{{{aplicacion}}}</strong>, Usuario: <b>{{{usuario}}}</b> Oficina: <b>{{{oficina}}}</b></p>
+        <p><strong>Fuente de consulta: </strong>{{{fuenteConsulta}}}</p>
+    </td>
+</tr>
