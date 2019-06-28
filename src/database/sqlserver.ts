@@ -223,8 +223,8 @@ export default class MsSqlServer {
    * @param query
    * @param input
    */
-  static ejecutarProcedure(nombreProcedimiento: string, inputs: any[], outputs: any[], dataBase: mssql.ConnectionPool) {
-    return new Promise((resolve, reject) => {
+  static ejecutarProcedure(nombreProcedimiento: string, inputs: any[], outputs: any[], dataBase: mssql.ConnectionPool): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
       let request = dataBase.request();
 
       inputs.forEach(input => {

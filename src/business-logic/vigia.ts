@@ -45,7 +45,7 @@ export default class Vigia {
       ];
 
       MsSqlServer.ejecutarProcedure("PR_VERIFICATERCEROV2", inputs, outputs, MsSqlServer.instance.getDataBaseVigia())
-        .then(result => {//"PAR_ENCONTRO":"N","PAR_TIPO":"D","PAR_LISTAS":null
+        .then((result : IVerificaTerceroVigiaOutput)=> {//"PAR_ENCONTRO":"N","PAR_TIPO":"D","PAR_LISTAS":null
           resolve(result);
         })
         .catch((error: Error) => {
