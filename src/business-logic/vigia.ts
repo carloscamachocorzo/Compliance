@@ -20,10 +20,10 @@ export default class Vigia {
     { origen, cadena, indicador, porcentaje }: { origen: string; cadena: string; indicador: number; porcentaje: number }
   ) {
     return new Promise(async (resolve, reject) => {
-      let datosVigia = await this.getDatosVigia({ origen, cadena, indicador, porcentaje });
+      let datosVigia: IVerificaTerceroVigiaOutput = await this.getDatosVigia({ origen, cadena, indicador, porcentaje });
       let processListaControl: any = await this.process(dataToConsult, datosVigia);
       if (processListaControl.ok) {
-        resolve({ ok: true, message: "xxxxx" });
+        resolve({ ok: true, message: datosVigia });
       } else {
         resolve({ ok: false, errorMessage: "algun mensaje de error" });
       }
@@ -31,7 +31,7 @@ export default class Vigia {
   }
 
   getDatosVigia({ origen, cadena, indicador, porcentaje }: { origen: string; cadena: string; indicador: number; porcentaje: number }) {
-    return new Promise((resolve, reject) => {
+    return new Promise<IVerificaTerceroVigiaOutput>((resolve, reject) => {
       let inputs: ISqlValue[] = [
         { name: "PAR_ORIGEN", type: mssql.VarChar, value: origen },
         { name: "PAR_CADENA", type: mssql.NVarChar, value: cadena },
@@ -55,10 +55,17 @@ export default class Vigia {
     });
   }
 
-  private process(response: IComplianceRequest, listaControl: any) {
+  private process(response: IComplianceRequest, listaControl: IVerificaTerceroVigiaOutput) {
     logger.debug("BI: process");
     return new Promise((resolve, reject) => {
+      /*logica a realizar para el proceso */ 
       resolve({ ok: true, message: "xxxxx" });
     });
   }
+}
+
+interface IVerificaTerceroVigiaOutput {
+  PAR_ENCONTRO: string;
+  PAR_TIPO: string;
+  PAR_LISTAS: string
 }
