@@ -69,7 +69,7 @@ export default class ListaControl {
           reject(processListaControl);
         }
       } else {
-        logger.warn("HUBO UN ERROR EN COMPLIANCE, PERO TRANQUILO AHOR VMOS A VIGIA: " + listaControl.errorMessage);
+        logger.warn("HUBO UN ERROR EN COMPLIANCE, PERO TRANQUILO AHORA VAMOS A VIGIA: " + listaControl.errorMessage);
         logger.info("----------> VAMOS A VIGIA A CONTINUAR CON EL PROCESO");
         parametrosPlantilla.fuenteConsulta = FUENTE_CONSULTA_VIGIA;
         let getListaControlVigia: any = await Vigia.instance.getListaControl(dataToConsult);

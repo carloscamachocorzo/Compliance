@@ -20,16 +20,21 @@ PILAS con el cors
 ## prerequisitos
 - Tener instalado nodejs:         Servidor de la aplicacion
 - Que el servidor tenga permisos para ver la base de datos
-
+## Comando para instalar las despendencias del proyecto
+npm install
 ## Comando para compilar la aplicacion, despues de haber hecho alguna mejora o ajuste al desarrollo
 ## Este comando genera el codigo que se necesita ejecutar ubicado en la carpeta /dist
 $ npm run build
-
+##compilar cambios
+tcs
+## instalar complemento para que se actualice automaticamente los cambios.
+npm install nodemon -g
 
 ## Para correr la aplicacion
 $ node dist/index
 
-
+## Para correr la aplicacion
+$ nodemon dist/index
 
 
 

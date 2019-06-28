@@ -111,7 +111,7 @@ test.post("/compliance", urlencodedParser, (req: Request, res: Response) => {
 
 test.get("/sendemail", (req: Request, res: Response) => {
   EMail.sendMail({
-    to: "hectoregarciap@gmail.com",
+    to: "carlos.camacho@fundaciondelamujer.com",
     subject: "Test - Email",
     htmlBody: "<h1>Hola mundo!!</h1> <h3>Email en formato html</h3>"
   });
@@ -124,7 +124,7 @@ test.get("/sendemail", (req: Request, res: Response) => {
 
 test.get("/sendemailtemplate", (req: Request, res: Response) => {
   EMail.sendMailTemplate({
-    to: "hectoregarciap@gmail.com",
+    to: "carlos.camacho@fundaciondelamujer.com",
     subject: "Test - Email",
     mailOptionsTemplateBody: "email.body",
     mailOptionsContext: {

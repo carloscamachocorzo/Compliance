@@ -22,8 +22,8 @@ export const DATA_BASE_CONFIG_MOVILIZATE = {
 };
 
 export const DATA_BASE_CONFIG_TOPAZ = {
-  server: "172.28.101.2",
-  port: 1436,
+  server: "172.28.99.241",
+  port: 1433,
   database: "FDLM",
   user: "topaz",
   password: "FmmbTop7",
@@ -62,7 +62,7 @@ export const EMAIL_CONFIG = {
   idParamAsuntoErrorMail: 21,
   idParamSupportMail: 22
 };
-export const EMAIL_TEST_CONECTIVIDAD = false;
+export const EMAIL_TEST_CONECTIVIDAD = true;
 export const ID_PARAM_CORREOS_LISTAS_CONTROL_MAIL = "34";
 export const ID_PARAM_ASUNTO_LISTAS_CONTROL_MAIL = "35";
 export const ID_PARAM_RUTA_ESTILOS = "37";
@@ -96,6 +96,6 @@ export const COMPLIANCE_WS_CONFIG = {
 };
 
 //CONFIGURACION DEL LOG
-export const LOG_PATH = "M:/FDLM/Listas de Control/log/";
+export const LOG_PATH = "C:/log/";
 export const LOG_FILE = "listas-control-ws";
 export const SHOW_FULL_FILE_PATH = false;
