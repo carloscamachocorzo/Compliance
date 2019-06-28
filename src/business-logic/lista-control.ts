@@ -72,7 +72,12 @@ export default class ListaControl {
         logger.warn("HUBO UN ERROR EN COMPLIANCE, PERO TRANQUILO AHORA VAMOS A VIGIA: " + listaControl.errorMessage);
         logger.info("----------> VAMOS A VIGIA A CONTINUAR CON EL PROCESO");
         parametrosPlantilla.fuenteConsulta = FUENTE_CONSULTA_VIGIA;
-        let getListaControlVigia: any = await Vigia.instance.getListaControl(dataToConsult);
+        let getListaControlVigia: any = await Vigia.instance.getListaControl(dataToConsult, {
+          origen: "Movilizate",
+          cadena: "10984642909",
+          indicador: 1,
+          porcentaje: 0
+        });
         resolve(getListaControlVigia);
       }
     });

@@ -132,6 +132,7 @@ export default class MsSqlServer {
         if (error) {
           logger.error(JSON.stringify(error));
           reject(error);
+          return;
         }
         resolve({ ok: true, message: "El proceso fué exitoso." });
       });
@@ -222,27 +223,27 @@ export default class MsSqlServer {
    * @param query
    * @param input
    */
-  static ejecutarProcedure(query: string, input: string) {
+  static ejecutarProcedure(nombreProcedimiento: string, inputs: any[], outputs: any[], dataBase: mssql.ConnectionPool) {
     return new Promise((resolve, reject) => {
-      this.instance.poolConnectionMovilizate
-        .request()
-        .input("input_parameter", mssql.Int, input)
-        .output("output_parameter", mssql.VarChar(50))
-        .execute("procedure_name", (err, result) => {
-          if (err) {
-            logger.error(err);
-            reject(err);
-            return;
-          }
+      let request = dataBase.request();
 
-          if (result === undefined || result.recordset.length === 0) {
-            reject("El registro solicitado no existe.");
-          } else {
-            resolve(result.recordset);
-          }
+      inputs.forEach(input => {
+        request.input(input.name, input.type, input.value);
+      });
+      outputs.forEach(output => {
+        request.output(output.name, output.type);
+      });
 
-          console.dir(result);
-        });
+      request.execute(nombreProcedimiento, (error, result: any) => {
+        // esto es lo que trae la variable result:  {"recordsets":[],"output":{"PAR_ENCONTRO":"S","PAR_TIPO":"D","PAR_LISTAS":"(12)-LISTA FUNCIONARIOS ACTIVOS-Amenaza Alta-RECHAZAR VINCULACIËN"},"rowsAffected":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"returnValue":0}
+        if (error) {
+          logger.error(JSON.stringify(error));
+          reject(error);
+          return;
+        }
+        // logger.info("-------->" + JSON.stringify(result.output));
+        resolve(result.output);
+      });
     });
   }
 }
@@ -250,7 +251,7 @@ export default class MsSqlServer {
 export interface ISqlValue {
   name: string;
   type: any;
-  value: string | number | Date;
+  value?: string | number | Date;
 }
 
 // documentacion para revisar tranacciones
