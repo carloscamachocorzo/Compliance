@@ -8,8 +8,8 @@ export const MAX_TEXTO_PARA_DESCRIPCION_LISTA = 5000;
 
 // CONFIGURACION DE LA CONEXION A LA BASE DE DATOS
 export const DATA_BASE_CONFIG_MOVILIZATE = {
-  server: "172.28.101.162",
-  port: 1433,
+  server: "172.22.10.200",
+  port: 1435,
   database: "movilizate",
   user: "Movilizate",
   password: "SqlXyz12345",
@@ -66,7 +66,7 @@ export const EMAIL_TEST_CONECTIVIDAD = true;
 export const ID_PARAM_CORREOS_LISTAS_CONTROL_MAIL = "34";
 export const ID_PARAM_ASUNTO_LISTAS_CONTROL_MAIL = "35";
 export const ID_PARAM_RUTA_ESTILOS = "37";
-export const ID_PARAM_CORREO_ADMIN = "nuevo registro, aun no sabemos el id";
+export const ID_PARAM_CORREO_ADMIN = "70";
 export const EMAIL_CONFIG_HECTOR = {
   host: "smtp.gmail.com",
   port: 465, //587

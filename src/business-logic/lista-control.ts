@@ -78,8 +78,7 @@ export default class ListaControl {
     });
   }
 
-  private getTo() {
-    return "hectoregarciap@gmail.com";
+  private getTo() {    
     return new Promise<string>((resolve, reject) => {
       Movilizate.instance
         .getConfiguration(ID_PARAM_CORREOS_LISTAS_CONTROL_MAIL)
@@ -117,7 +116,7 @@ export default class ListaControl {
     });
   }
   private getCorreoAdmin() {
-    return "desarrollo@fundaciondelamujer.com";
+    
     return new Promise<string>((resolve, reject) => {
       Movilizate.instance
         .getConfiguration(ID_PARAM_CORREO_ADMIN)

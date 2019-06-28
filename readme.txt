@@ -14,7 +14,7 @@ PILAS con el cors
             correoAdmin: "desarrollo@fundaciondelamujer.com",//
 - guardar todo los registros que arroge la consulta de compliance
 - Falta averiguar si tipo2 bloquea por contagio
-- nuevo parametro: al que se le debe enviar el correo.. cumplimiento@fundaciondelamujer.com   
+
 
 
 ## prerequisitos
