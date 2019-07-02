@@ -61,74 +61,78 @@ export default class Compliance {
     //esta promesa no debe tener reject, porque el que la invoca controla esa parte
     // cuando exista errores, le damos resolve, pero con ok : false
     return new Promise(async resolve => {
-      //
-      logger.debug("-----------> NOMBRE: " + JSON.stringify(response.nombre));
-      parametrosPlantilla.cliente = {
-        nombre: response.nombre,
-        identificacion: response.datoConsultado,
-        tipoDocumento: response.tipoDocumento
-      };
+      try {
+        //
+        logger.debug("-----------> NOMBRE: " + JSON.stringify(response.nombre));
+        parametrosPlantilla.cliente = {
+          nombre: response.nombre,
+          identificacion: response.datoConsultado,
+          tipoDocumento: response.tipoDocumento
+        };
 
-      //obtenemos el tipo de riesgo encontrado
-      let tipoRiesgo: number = this.getTipoRiesgo(response.resultados, listasTipo2);
-      logger.info("-----------> TIPO DE RIESGO " + tipoRiesgo);
-      let debeEnviarCorreo: boolean = tipoRiesgoEnviaCorreo.filter(riesgo => riesgo.tipo === tipoRiesgo && riesgo.notificar).length > 0;
-      logger.info("-----------> DEBE ENVIAR CORREO " + debeEnviarCorreo);
+        //obtenemos el tipo de riesgo encontrado
+        let tipoRiesgo: number = this.getTipoRiesgo(response.resultados, listasTipo2);
+        logger.info("-----------> TIPO DE RIESGO " + tipoRiesgo);
+        let debeEnviarCorreo: boolean = tipoRiesgoEnviaCorreo.filter(riesgo => riesgo.tipo === tipoRiesgo && riesgo.notificar).length > 0;
+        logger.info("-----------> DEBE ENVIAR CORREO " + debeEnviarCorreo);
 
-      switch (tipoRiesgo) {
-        case RIESGO_ALTO: // tipo 3
-          try {
-            await this.processRiesgoAlto({
-              response,
-              tipoRiesgo,
-              listasTipo2,
-              numeroSolicitud,
-              debeEnviarCorreo,
-              parametrosMail,
-              parametrosPlantilla
-            });
-            resolve({ ok: true, response });
-          } catch (error) {
-            logger.error(error);
-            resolve({ ok: false, errorMessage: error });
-          }
-          return; // break;
+        switch (tipoRiesgo) {
+          case RIESGO_ALTO: // tipo 3
+            try {
+              await this.processRiesgoAlto({
+                response,
+                tipoRiesgo,
+                listasTipo2,
+                numeroSolicitud,
+                debeEnviarCorreo,
+                parametrosMail,
+                parametrosPlantilla
+              });
+              resolve({ ok: true, response });
+            } catch (error) {
+              logger.error(error);
+              resolve({ ok: false, errorMessage: error });
+            }
+            return; // break;
 
-        case RIESGO_MEDIO: //tipo 2   tambien debemos bloquear a la persona, segun documento
-          try {
-            await this.processRiesgoMedio(debeEnviarCorreo);
-            resolve({ ok: true, response });
-          } catch (error) {
-            logger.error(error);
-            resolve({ ok: false, errorMessage: error });
-          }
-          return; // break;
+          case RIESGO_MEDIO: //tipo 2   tambien debemos bloquear a la persona, segun documento
+            try {
+              await this.processRiesgoMedio(debeEnviarCorreo);
+              resolve({ ok: true, response });
+            } catch (error) {
+              logger.error(error);
+              resolve({ ok: false, errorMessage: error });
+            }
+            return; // break;
 
-        case RIESGO_BAJO: //tipo 1
-          try {
-            await this.processRiesgoBajo(debeEnviarCorreo);
-            resolve({ ok: true, response });
-          } catch (error) {
-            logger.error(error);
-            resolve({ ok: false, errorMessage: error });
-          }
-          return; // break;
+          case RIESGO_BAJO: //tipo 1
+            try {
+              await this.processRiesgoBajo(debeEnviarCorreo);
+              resolve({ ok: true, response });
+            } catch (error) {
+              logger.error(error);
+              resolve({ ok: false, errorMessage: error });
+            }
+            return; // break;
 
-        default:
-          //tipo 0
-          try {
-            await this.processRiesgoNoTiene(response, debeEnviarCorreo, parametrosMail, parametrosPlantilla, numeroSolicitud);
-            resolve({ ok: true, response });
-          } catch (error) {
-            logger.error(error);
-            resolve({ ok: false, errorMessage: error });
-          }
-          return; // break;
+          default:
+            //tipo 0
+            try {
+              await this.processRiesgoNoTiene(response, debeEnviarCorreo, parametrosMail, parametrosPlantilla, numeroSolicitud);
+              resolve({ ok: true, response });
+            } catch (error) {
+              logger.error(error);
+              resolve({ ok: false, errorMessage: error });
+            }
+            return; // break;
+        }
+
+        // if (debeEnviarCorreo) {
+        //   this.processRiesgoAlto(debeEnviarCorreo, parametrosMail, parametrosPlantilla);
+        // }
+      } catch (error) {
+        resolve(error.message);
       }
-
-      // if (debeEnviarCorreo) {
-      //   this.processRiesgoAlto(debeEnviarCorreo, parametrosMail, parametrosPlantilla);
-      // }
     });
   }
 
@@ -160,7 +164,8 @@ export default class Compliance {
   }) {
     logger.debug("--------> procesando riesgo ALTO");
     try {
-      //guardando las listas y sus detalles
+      // guardando las listas y sus detalles, bloquea al cliente y a los que puede contagiar y limpia de la tabla temporal la solicitud
+      // todo esto lo hace en una transaccion
       await Topaz.instance.procesarRiesgo3(response, listasTipo2, numeroSolicitud, tipoRiesgo);
 
       if (debeEnviarCorreo) {
