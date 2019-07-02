@@ -161,56 +161,27 @@ export default class Compliance {
     logger.debug("--------> procesando riesgo ALTO");
     try {
       //guardando las listas y sus detalles
-      let listas = response.resultados;
-      let datoConsultado = response.datoConsultado.toString();
-      let emailDescription: IMailDescription[] = [];
-      let index: number = 0;
-      listas.forEach(async resultado => {
-        let descripcion: string = resultado.descripcion;
-        let riesgo = this.getTipoRiesgoPorResultado(resultado, listasTipo2);
-        if (descripcion.length > 0) {
-          // logger.debug("index: " + index);
-          emailDescription.push({
-            riesgo: riesgo.toString(),
-            lista: resultado.lista,
-            descripcion: descripcion.toString()
-          });
-          index = index + 1;
-          // if (resultado.lista === "GovermentWantedUsaService") {
-          await Topaz.instance.insertDetalle({
-            riesgo: riesgo.toString(),
-            lista: resultado.lista,
-            numsolicitud: numeroSolicitud,
-            nrodocumento: datoConsultado,
-            descripcion: descripcion.toString()
-          });
+      await Topaz.instance.procesarRiesgo3(response, listasTipo2, numeroSolicitud, tipoRiesgo);
 
-          // }
-        }
-      });
-      logger.debug("emailDescription: " + emailDescription);
-      emailDescription.sort(function(a: any, b: any) {
-        return b.riesgo - a.riesgo;
-      });
-      EMail.sendMailTemplate({
-        to: parametrosMail.to,
-        subject: parametrosMail.subject,
-        mailOptionsTemplateBody: BODY_PLANTILLA_NOTIFICACION,
-        mailOptionsContext: {
-          rutaEstilos: parametrosPlantilla.rutaEstilos,
-          fecha: getFechaActual(), //"10 de junio del 2019",
-          correoAdmin: parametrosPlantilla.correoAdmin,
-          fuenteConsulta: parametrosPlantilla.fuenteConsulta,
-          aplicacion: "Movilízate",
-          usuario: "HGARCIA ",
-          oficina: "Bucaramanga",
-          cliente: parametrosPlantilla.cliente,
-          emailDescription
-        }
-      });
-
-      //consultamos las otras personas que pertenecen a la solicitud, para bloquearlas
-      await this.bloquearYLimpiar(numeroSolicitud, response, datoConsultado, tipoRiesgo);
+      if (debeEnviarCorreo) {
+        let emailDescription: IMailDescription[] = this.getEmailDescription(response, listasTipo2);
+        EMail.sendMailTemplate({
+          to: parametrosMail.to,
+          subject: parametrosMail.subject,
+          mailOptionsTemplateBody: BODY_PLANTILLA_NOTIFICACION,
+          mailOptionsContext: {
+            rutaEstilos: parametrosPlantilla.rutaEstilos,
+            fecha: getFechaActual(),
+            correoAdmin: parametrosPlantilla.correoAdmin,
+            fuenteConsulta: parametrosPlantilla.fuenteConsulta,
+            aplicacion: "Movilízate",
+            usuario: "HGARCIA ",
+            oficina: "Bucaramanga",
+            cliente: parametrosPlantilla.cliente,
+            emailDescription
+          }
+        });
+      }
       //
     } catch (error) {
       logger.error(error);
@@ -218,7 +189,72 @@ export default class Compliance {
     }
   }
 
-  private async bloquearYLimpiar(numeroSolicitud: number, response: IComplianceResponse, datoConsultado: string, tipoRiesgo: number) {
+  /**
+   *
+   * @param response Funcion que devuelve todas las descripciones ordenadas de 3 a 0  para enviarla en la notificacion de correo
+   * @param listasTipo2
+   */
+  private getEmailDescription(response: IComplianceResponse, listasTipo2: string[]) {
+    let listas = response.resultados;
+    let emailDescription: IMailDescription[] = [];
+    listas.forEach(resultado => {
+      let descripcion: string = resultado.descripcion;
+      let riesgo = Compliance.getTipoRiesgoPorResultado(resultado, listasTipo2);
+      if (descripcion.length > 0) {
+        emailDescription.push({
+          riesgo: riesgo.toString(),
+          lista: resultado.lista,
+          descripcion: descripcion.toString()
+        });
+      }
+    });
+    // logger.debug("emailDescription: " + emailDescription);
+    emailDescription.sort(function(a: any, b: any) {
+      return b.riesgo - a.riesgo;
+    });
+    return emailDescription;
+  }
+
+  private async procesarRiesgo3Sintransaccion_se_puede_borrar(
+    response: IComplianceResponse,
+    listasTipo2: string[],
+    numeroSolicitud: number,
+    tipoRiesgo: number,
+    debeEnviarCorreo: boolean,
+    parametrosMail: IParametrosMail,
+    parametrosPlantilla: IMailOptionsContext
+  ) {
+    let listas = response.resultados;
+    let datoConsultado = response.datoConsultado.toString();
+    let emailDescription: IMailDescription[] = [];
+    let index: number = 0;
+    listas.forEach(async resultado => {
+      let descripcion: string = resultado.descripcion;
+      let riesgo = Compliance.getTipoRiesgoPorResultado(resultado, listasTipo2);
+      if (descripcion.length > 0) {
+        // logger.debug("index: " + index);
+        emailDescription.push({
+          riesgo: riesgo.toString(),
+          lista: resultado.lista,
+          descripcion: descripcion.toString()
+        });
+        index = index + 1;
+        // if (resultado.lista === "GovermentWantedUsaService") {
+        await Topaz.instance.insertDetalle({
+          riesgo: riesgo.toString(),
+          lista: resultado.lista,
+          numsolicitud: numeroSolicitud,
+          nrodocumento: datoConsultado,
+          descripcion: descripcion.toString()
+        });
+        // }
+      }
+    });
+    logger.debug("emailDescription: " + emailDescription);
+    emailDescription.sort(function(a: any, b: any) {
+      return b.riesgo - a.riesgo;
+    });
+    //consultamos las otras personas que pertenecen a la solicitud, para bloquearlas
     let personasABloquear: ITemporalEnvioCorreo[] = await Topaz.instance.getPersonasTemporalesXNumeroSolicitud(numeroSolicitud);
     // adicionamos al cliente actualmente consultado y aparece en alguna de las listas con riesgo 3, entonces este man afecta a los demas consultados previamente
     personasABloquear.push({
@@ -242,6 +278,24 @@ export default class Compliance {
     });
     //ahora limpiamos la tabla temporal, porque ya la utilizamos
     await Topaz.instance.deleteTemporalEnvioCorreo({ numsolicitud: numeroSolicitud });
+    if (debeEnviarCorreo) {
+      EMail.sendMailTemplate({
+        to: parametrosMail.to,
+        subject: parametrosMail.subject,
+        mailOptionsTemplateBody: BODY_PLANTILLA_NOTIFICACION,
+        mailOptionsContext: {
+          rutaEstilos: parametrosPlantilla.rutaEstilos,
+          fecha: getFechaActual(),
+          correoAdmin: parametrosPlantilla.correoAdmin,
+          fuenteConsulta: parametrosPlantilla.fuenteConsulta,
+          aplicacion: "Movilízate",
+          usuario: "HGARCIA ",
+          oficina: "Bucaramanga",
+          cliente: parametrosPlantilla.cliente,
+          emailDescription
+        }
+      });
+    }
   }
 
   /**
@@ -372,7 +426,7 @@ export default class Compliance {
     return RIESGO_NO_HAY;
   }
 
-  private getTipoRiesgoPorResultado(resultado: IComplianceResponseResultados, listasTipo2: string[]) {
+  public static getTipoRiesgoPorResultado(resultado: IComplianceResponseResultados, listasTipo2: string[]) {
     let listaTieneRiesgo3 = resultado.presentaRiesgo && !listasTipo2.includes(resultado.lista);
     if (listaTieneRiesgo3) {
       return RIESGO_ALTO;

@@ -187,4 +187,21 @@ test.get("/getConfiguracion/:idConfiguracion", (req: Request, res: Response) => 
     });
 });
 
+test.get("/ejemploTransaccion", (req: Request, res: Response) => {
+  MsSqlServer.testCaseTransaccion_Commit_OK(MsSqlServer.instance.getDataBaseTopaz())
+    .then(results => {
+      res.status(200).json({
+        ok: true,
+        message: results
+      });
+    })
+    .catch((error: RequestError) => {
+      logger.error(error);
+      res.status(200).json({
+        ok: false,
+        message: error
+      });
+    });
+});
+
 export default test;
