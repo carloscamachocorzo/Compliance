@@ -64,9 +64,9 @@ export default class EMail {
               domain: 'desarrollo'
             }, */
             from: results.filter(res => res.idConfiguracion === EMAIL_CONFIG.idParamDomainMail)[0].ValorTexto, 
-            sender: results.filter(res => res.idConfiguracion === EMAIL_CONFIG.idParamDomainUser)[0].ValorTexto,            
-             logger: true,
-             debug: true
+            sender: results.filter(res => res.idConfiguracion === EMAIL_CONFIG.idParamDomainUser)[0].ValorTexto
+             /* logger: true,
+             debug: true */
           };
           //logger.error("00000000 PILAS NO OLVIDES QUITAR ESTA LINEA Y BORRAR MI CONTRASEÑA");
           resolve(emailConfiguracion);
